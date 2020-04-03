@@ -11,12 +11,36 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if (params[:sort_title] == 'true')
-      @movies = Movie.order(:title)
-    elsif (params[:sort_release_date] == 'true')
-      @movies = Movie.order(:release_date)
+    @all_ratings = Movie.ratings
+
+    @ratings = @all_ratings
+
+    if params[:ratings]
+      @ratings = []
+      params[:ratings].each_key { 
+        |k|
+        @ratings << k
+      }
+    end
+
+    if @ratings.length > 0
+      @movies = Movie.with_ratings(@ratings)
+    end
+
+    if @movies
+      @movies = @movies.all
     else
       @movies = Movie.all
+    end
+
+    @sort_title = params[:sort_title]
+    if @sort_title == 'true'
+      @movies = @movies.order(:title)
+    end
+
+    @sort_release_date = params[:sort_release_date]
+    if @sort_release_date == 'true'
+      @movies = @movies.order(:release_date)
     end
   end
 
